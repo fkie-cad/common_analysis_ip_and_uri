@@ -8,11 +8,9 @@ setup(
     packages=find_packages(),
     install_requires=[
         'common_analysis_base',
-        'common_helper_files',
         'yara-python >= 3.5'
     ],
     dependency_links=[
-        'git+https://github.com/mass-project/common_helper_files.git#common_helper_files',
         'git+https://github.com/mass-project/common_analysis_base.git#common_analysis_base'
     ],
     description="Analysis module to find IPs und URIs",
