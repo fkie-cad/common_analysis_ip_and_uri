@@ -14,7 +14,7 @@ setup(
     ],
     dependency_links=[
         'git+https://github.com/mass-project/common_helper_files.git#common_helper_files',
-        'git+https://github.com/mass-project/common_analysis_base.git'
+        'git+https://github.com/mass-project/common_analysis_base.git#common_analysis_base'
     ],
     description="Analysis module to find IPs und URIs",
     author="Fraunhofer FKIE, University of Bonn Institute of Computer Science 4",
