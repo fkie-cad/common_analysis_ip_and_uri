@@ -1,9 +1,7 @@
 from common_analysis_base import AnalysisPluginFile
-from common_helper_files import get_directory_for_filename, get_version_string_from_git
 import socket
 from sys import exit, exc_info
 import logging
-import pkg_resources
 
 try:
     import yara
@@ -15,10 +13,8 @@ except ImportError:
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
 
-try:
-    system_version = pkg_resources.get_distribution("common_analysis_ip_and_uri_finder").version
-except:
-    system_version = get_version_string_from_git(get_directory_for_filename(__file__))
+
+system_version = "0.3"
 
 
 class FinderBase:
