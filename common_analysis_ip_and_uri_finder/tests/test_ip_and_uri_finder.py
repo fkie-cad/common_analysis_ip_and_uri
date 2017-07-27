@@ -19,8 +19,7 @@ class TestIpAndUrlFinder(unittest.TestCase):
     def setUp(self):
         self.yara_uri_rules = find_file('uri_rules.yara')
         self.yara_ip_rules = find_file('ip_rules.yara')
-        self.test_string = "1.2.3.4 abc 123.123.123.123 abc 1.2.3 .4 abc 1.1234.1.1 abc 1.a.1.1" \
-                           "1234:1234:abcd:abcd:1234:1234:abcd:abcd 2001:db8:0:8d3:0:8a2e:70:7344"
+        self.test_string = "1.2.3.4 abc 123.123.123.123 abc 1.2.3 .4 abc 1.1234.1.1 abc 1.a.1.1 1234:1234:abcd:abcd:1234:1234:abcd:abcd 2001:db8:0:8d3:0:8a2e:70:7344 "
 
     def test_find_ips(self):
         results = IPFinder(self.yara_ip_rules).find_ips(self.test_string, validate=False)

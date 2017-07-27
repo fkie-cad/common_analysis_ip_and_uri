@@ -1,20 +1,17 @@
 from common_analysis_base import AnalysisPluginFile
-import socket
-from sys import exit, exc_info
+from common_helper_files import get_dir_of_file
 import logging
-
-try:
-    import yara
-except ImportError:
-    yara = None
-    exit("yara not found. please install yara")
+import os
+import socket
+from sys import exc_info
+import yara
 
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
 
 
-system_version = "0.3"
+system_version = "0.4"
 
 
 class FinderBase:
@@ -119,10 +116,32 @@ class URIFinder(FinderBase):
 
 
 class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
+
     def __init__(self, yara_uri_rules=None, yara_ip_rules=None):
         super(CommonAnalysisIPAndURIFinder, self).__init__(system_version)
-        self.yara_uri_rules = yara_uri_rules
-        self.yara_ip_rules = yara_ip_rules
+        self._set_rule_file_pathes(yara_uri_rules, yara_ip_rules)
+        self._check_for_errors()
+
+    def _set_rule_file_pathes(self, yara_uri_rules, yara_ip_rules):
+        internal_signature_dir = os.path.join(get_dir_of_file(__file__), 'yara_rules')
+        if yara_ip_rules is None:
+            self.yara_ip_rules = os.path.join(internal_signature_dir, 'ip_rules.yara')
+        else:
+            self.yara_ip_rules = yara_ip_rules
+        if yara_uri_rules is None:
+            self.yara_uri_rules = os.path.join(internal_signature_dir, 'uri_rules.yara')
+        else:
+            self.yara_uri_rules = yara_uri_rules
+
+    def _check_for_errors(self):
+        if os.path.exists(self.yara_ip_rules):
+            logging.info('ip signature path: {}'.format(self.yara_ip_rules))
+        else:
+            logging.error('ip signatures not found: {}'.format(self.yara_ip_rules))
+        if os.path.exists(self.yara_uri_rules):
+            logging.info('ip signature path: {}'.format(self.yara_uri_rules))
+        else:
+            logging.error('ip signatures not found: {}'.format(self.yara_uri_rules))
 
     def analyze_file(self, file_path, separate_ipv6=False):
         found_uris, found_ips_v4, found_ips_v6 = [], [], []
