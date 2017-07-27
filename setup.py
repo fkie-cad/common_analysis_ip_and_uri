@@ -1,11 +1,13 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from common_analysis_ip_and_uri_finder import __version__
 
 
 setup(
     name="common_analysis_ip_and_uri_finder",
     version=__version__,
-    packages=find_packages(),
+    packages=['common_analysis_ip_and_uri_finder'],
+    package_dir={'common_analysis_ip_and_uri_finder': 'common_analysis_ip_and_uri_finder'},
+    package_data={'common_analysis_ip_and_uri_finder': ['yara_rules/*']},
     install_requires=[
         'common_analysis_base',
         'common_helper_files',

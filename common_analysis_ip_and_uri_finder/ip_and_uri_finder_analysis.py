@@ -11,7 +11,7 @@ logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
 
 
-system_version = "0.4"
+system_version = "0.4.1"
 
 
 class FinderBase:
