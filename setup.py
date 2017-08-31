@@ -9,17 +9,17 @@ setup(
     package_dir={'common_analysis_ip_and_uri_finder': 'common_analysis_ip_and_uri_finder'},
     package_data={'common_analysis_ip_and_uri_finder': ['yara_rules/*']},
     install_requires=[
-        'common_analysis_base',
-        'common_helper_files',
+        'common_analysis_base >= 0.1',
+        'common_helper_files >= 0.2',
         'yara-python >= 3.5'
     ],
     data_files=[('common_analysis_ip_and_uri_finder/yara_rules', [
         'common_analysis_ip_and_uri_finder/yara_rules/ip_rules.yara',
         'common_analysis_ip_and_uri_finder/yara_rules/uri_rules.yara',
-        ])],
+    ])],
     dependency_links=[
-        'git+https://github.com/mass-project/common_analysis_base.git#common_analysis_base',
-        'git+https://github.com/fkie-cad/common_helper_files.git#common_helper_files'
+        'https://github.com/mass-project/common_analysis_base/tarball/master#egg=common_analysis_base-0.1',
+        'https://github.com/fkie-cad/common_helper_files/tarball/master#egg=common_helper_files-0.2'
     ],
     description="Analysis module to find IPs und URIs",
     author="Fraunhofer FKIE, University of Bonn Institute of Computer Science 4",
