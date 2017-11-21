@@ -66,6 +66,19 @@ class IPFinder(FinderBase):
         file_content = self.get_file_content(file_path)
         return self.find_ips(file_content, validate)
 
+    def find_geo_location(self, ip_address):
+        import geoip2.database
+        reader = geoip2.database.Reader("/home/roman/GeoLite2-City.mmdb")
+        response = reader.city(ip_address)
+        latitude = response.location.latitude
+        longitude = response.location.longitude
+        return (latitude, longitude)
+
+    def link_ip_with_geo_location(self, ipadresses):
+        ipadresses = ["128.101.101.101", "128.101.101.101", "128.101.101.101"]
+        for ip in ipadresses:
+            link = ip + " " + self.find_geo_location(ip)
+
     @staticmethod
     def _validate_ip(ip, address_format):
         try:

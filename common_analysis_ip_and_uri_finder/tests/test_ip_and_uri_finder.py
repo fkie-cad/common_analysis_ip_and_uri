@@ -6,7 +6,7 @@ import socket
 from common_analysis_ip_and_uri_finder import IPFinder, URIFinder
 
 
-def find_file(name, root='.'):
+def find_file(name, root='..'):
     file_path = None
     for path, dirnames, filenames in os.walk(root):
         for filename in filenames:
@@ -69,3 +69,9 @@ class TestIpAndUrlFinder(unittest.TestCase):
         expected_result = {"http://www.google.de", "https://www.test.de/test/", "ftp://ftp.is.co.za/rfc/rfc1808.txt",
                            "telnet://192.0.2.16:80/"}
         self.assertEqual(test_result, expected_result)
+
+    def test_find_geo_location(self):
+        self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('128.101.101.101'), (44.9759, -93.2166))
+
+if __name__ == "__main__":
+    unittest.main()
