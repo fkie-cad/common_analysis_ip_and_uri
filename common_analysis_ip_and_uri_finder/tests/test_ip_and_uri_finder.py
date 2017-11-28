@@ -72,6 +72,12 @@ class TestIpAndUrlFinder(unittest.TestCase):
 
     def test_find_geo_location(self):
         self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('128.101.101.101'), (44.9759, -93.2166))
+        self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('127.101.101.101'), "()")
+
+    def test_link_ip_with_geo_location(self):
+        ipadresses = ["128.101.101.101", "128.101.101.101", "128.101.101.101"]
+        expected_results = [ "128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)"]
+        self.assertEqual(IPFinder(self.yara_ip_rules).link_ip_with_geo_location(ipadresses), expected_results)
 
 if __name__ == "__main__":
     unittest.main()
