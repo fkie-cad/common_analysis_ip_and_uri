@@ -1,9 +1,26 @@
 import unittest
+from unittest.mock import patch
 import os
 import tempfile
 import socket
+from collections import namedtuple
 
 from common_analysis_ip_and_uri_finder import IPFinder, URIFinder
+
+
+MockResponse = namedtuple('MockResponse', ['location'])
+MockLocation = namedtuple('MockLocation', ['latitude', 'longitude'])
+
+
+class MockReader:
+    def __init__(self, database_path):
+        pass
+
+    def city(self, address):
+        if address == '128.101.101.101':
+            return MockResponse(location=MockLocation(latitude=44.9759, longitude=-93.2166))
+        if address == '127.101.101.101':
+            return MockResponse(location=MockLocation(""))
 
 
 def find_file(name, root='..'):
@@ -70,14 +87,13 @@ class TestIpAndUrlFinder(unittest.TestCase):
                            "telnet://192.0.2.16:80/"}
         self.assertEqual(test_result, expected_result)
 
+    @patch('geoip2.database.Reader', MockReader)
     def test_find_geo_location(self):
         self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('128.101.101.101'), (44.9759, -93.2166))
         self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('127.101.101.101'), "()")
 
+    @patch('geoip2.database.Reader', MockReader)
     def test_link_ip_with_geo_location(self):
         ipadresses = ["128.101.101.101", "128.101.101.101", "128.101.101.101"]
-        expected_results = [ "128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)"]
+        expected_results = ["128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)", "128.101.101.101 (44.9759, -93.2166)"]
         self.assertEqual(IPFinder(self.yara_ip_rules).link_ip_with_geo_location(ipadresses), expected_results)
-
-if __name__ == "__main__":
-    unittest.main()
