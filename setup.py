@@ -4,6 +4,8 @@ from setuptools.command.install import install
 from common_helper_process import execute_shell_command
 
 """This setup.py needs to be executed with sudo -EH python3 setup.py install"""
+
+
 class BashScript(install):
     def run(self):
         command = 'sudo -EH bash install_geo_ip.sh'

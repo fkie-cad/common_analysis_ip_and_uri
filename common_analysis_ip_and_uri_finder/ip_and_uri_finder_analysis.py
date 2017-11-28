@@ -5,11 +5,12 @@ import os
 import socket
 from sys import exc_info
 import yara
+import geoip2.database
 
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
-
+geoip_database_path = os.path.join(get_dir_of_file(__file__), '../bin/bin/GeoLite2-City_20171107/GeoLite2-City.mmdb')
 
 system_version = "0.4.1"
 
@@ -67,7 +68,6 @@ class IPFinder(FinderBase):
         return self.find_ips(file_content, validate)
 
     def find_geo_location(self, ip_address):
-        import geoip2.database
         reader = geoip2.database.Reader("/home/roman/GeoLite2-City.mmdb")
         try:
             response = reader.city(ip_address)
