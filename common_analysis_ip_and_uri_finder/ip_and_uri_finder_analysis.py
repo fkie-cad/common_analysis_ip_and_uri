@@ -10,7 +10,7 @@ import geoip2.database
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
-geoip_database_path = os.path.join(get_dir_of_file(__file__), '../bin/bin/GeoLite2-City_20171107/GeoLite2-City.mmdb')
+geoip_database_path = os.path.join(get_dir_of_file(__file__), '../common_analysis_ip_and_uri_finder/bin/GeoLite2-City_20171107/GeoLite2-City.mmdb')
 
 system_version = "0.4.1"
 
@@ -68,20 +68,20 @@ class IPFinder(FinderBase):
         return self.find_ips(file_content, validate)
 
     def find_geo_location(self, ip_address):
-        reader = geoip2.database.Reader("/home/roman/GeoLite2-City.mmdb")
+        reader = geoip2.database.Reader(geoip_database_path)
         try:
             response = reader.city(ip_address)
         except Exception as e:
             logging.error("Geo Location of IP: {} {}".format(exc_info()[0].__name__, e))
-            return "()"
+            return ""
         latitude = response.location.latitude
         longitude = response.location.longitude
         return (latitude, longitude)
 
-    def link_ip_with_geo_location(self, ipadresses):
+    def link_ips_with_geo_location_in_list(self, ipadresses):
         ip_with_geo_list = []
         for ip in ipadresses:
-            link = ip + " " + str(self.find_geo_location(ip))
+            link = [ip, str(self.find_geo_location(ip))]
             ip_with_geo_list.append(link)
         return ip_with_geo_list
 
@@ -172,9 +172,10 @@ class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
             found_ips_v6 = ip_finder.find_ipv6_addresses_in_file(file_path)
         report = self.prepare_analysis_report_dictionary()
         report['uris'] = found_uris
+
         if not separate_ipv6:
-            report['ips'] = found_ips_v4 + found_ips_v6
+            report['ips'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v4) + ip_finder.link_ips_with_geo_location_in_list(found_ips_v6)
         else:
-            report['ips_v4'] = found_ips_v4
-            report['ips_v6'] = found_ips_v6
+            report['ips_v4'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v4)
+            report['ips_v6'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v6)
         return report
