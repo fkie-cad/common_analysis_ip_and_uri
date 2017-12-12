@@ -94,12 +94,6 @@ class TestIpAndUrlFinder(unittest.TestCase):
         self.assertEqual(IPFinder(self.yara_ip_rules).find_geo_location('255.255.255.255'), "")
 
     @patch('geoip2.database.Reader', MockReader)
-    def test_link_ip_with_geo_location(self):
-        ipadresses = ["128.101.101.101", "128.101.101.101", "128.101.101.101"]
-        expected_results = [["128.101.101.101", "(44.9759, -93.2166)"], ["128.101.101.101", "(44.9759, -93.2166)"], ["128.101.101.101", "(44.9759, -93.2166)"]]
-        self.assertEqual(IPFinder(self.yara_ip_rules).link_ips_with_geo_location_in_list(ipadresses), expected_results)
-
-    @patch('geoip2.database.Reader', MockReader)
     def test_find_geo_location(self):
         ip_adresses = ["128.101.101.101", "255.255.255.255"]
         expected_results = [{"ip": "128.101.101.101", "geo_location": "(44.9759, -93.2166)"}, {"ip": "255.255.255.255", "geo_location": ""}]

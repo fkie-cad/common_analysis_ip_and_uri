@@ -86,13 +86,6 @@ class IPFinder(FinderBase):
             linked_list.append(link)
         return linked_list
 
-    def link_ips_with_geo_location_in_list(self, ipadresses):
-        ip_with_geo_list = []
-        for ip in ipadresses:
-            link = [ip, str(self.find_geo_location(ip))]
-            ip_with_geo_list.append(link)
-        return ip_with_geo_list
-
     @staticmethod
     def _validate_ip(ip, address_format):
         try:
