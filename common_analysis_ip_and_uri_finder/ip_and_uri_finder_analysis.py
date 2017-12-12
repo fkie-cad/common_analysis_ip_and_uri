@@ -10,7 +10,7 @@ import geoip2.database
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
-geoip_database_path = os.path.join(get_dir_of_file(__file__), '../common_analysis_ip_and_uri_finder/bin/GeoLite2-City_20171107/GeoLite2-City.mmdb')
+geoip_database_path = os.path.join(get_dir_of_file(__file__), 'bin/GeoLite2-City/GeoLite2-City.mmdb')
 
 system_version = "0.4.1"
 
