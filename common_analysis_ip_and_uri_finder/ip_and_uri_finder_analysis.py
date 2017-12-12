@@ -71,12 +71,20 @@ class IPFinder(FinderBase):
         reader = geoip2.database.Reader(geoip_database_path)
         try:
             response = reader.city(ip_address)
+            latitude = response.location.latitude
+            longitude = response.location.longitude
         except Exception as e:
             logging.error("Geo Location of IP: {} {}".format(exc_info()[0].__name__, e))
             return ""
-        latitude = response.location.latitude
-        longitude = response.location.longitude
         return (latitude, longitude)
+
+    def link_ips_with_geo_location(self, ip_adresses):
+        linked_list = []
+        for ip in ip_adresses:
+            geo_location = str(self.find_geo_location(ip))
+            link = {"ip": ip, "geo_location": geo_location}
+            linked_list.append(link)
+        return linked_list
 
     def link_ips_with_geo_location_in_list(self, ipadresses):
         ip_with_geo_list = []
@@ -174,8 +182,8 @@ class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
         report['uris'] = found_uris
 
         if not separate_ipv6:
-            report['ips'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v4) + ip_finder.link_ips_with_geo_location_in_list(found_ips_v6)
+            report['ips'] = ip_finder.link_ips_with_geo_location(found_ips_v4) + ip_finder.link_ips_with_geo_location(found_ips_v6)
         else:
-            report['ips_v4'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v4)
-            report['ips_v6'] = ip_finder.link_ips_with_geo_location_in_list(found_ips_v6)
+            report['ips_v4'] = ip_finder.link_ips_with_geo_location(found_ips_v4)
+            report['ips_v6'] = ip_finder.link_ips_with_geo_location(found_ips_v6)
         return report
