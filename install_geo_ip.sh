@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
+# 'sudo pip3 install geoip2' need to be executed before this module installation
 
 echo "------------------------------------"
 echo "           install GeoIP            "
 echo "------------------------------------"
 
-#pip3 install libgeoip-dev
-#sudo pip3 install geoip2
 cd common_analysis_ip_and_uri_finder/
+if [ -e bin/ ]
+then
+    sudo rm -R bin/
+    echo "---------------------------------------------"
+    echo " Updating Geolocation GeoLite2-city Database "
+    echo "---------------------------------------------"
+fi
 mkdir bin
 cd bin/
 wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
