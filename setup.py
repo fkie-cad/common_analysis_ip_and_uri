@@ -3,13 +3,16 @@ import sys
 
 NAME = 'common_analysis_ip_and_uri_finder'
 
-sys.path.append(NAME)
-from version import __version__
+
+def _get_version():
+    sys.path.append(NAME)
+    from version import __version__
+    return __version__
 
 
 setup(
     name=NAME,
-    version=__version__,
+    version=_get_version(),
     packages=[NAME],
     package_dir={NAME: NAME},
     package_data={NAME: ['yara_rules/*']},
