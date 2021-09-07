@@ -5,6 +5,7 @@
 .idea
 .project
 .pydevproject
+.pytest_cache
 __pycache__
 build/*
 dist/*
