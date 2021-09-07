@@ -18,6 +18,13 @@ setup(
         'common_helper_files @ git+https://github.com/fkie-cad/common_helper_files.git',
         'yara-python >= 3.5'
     ],
+    extras_require={
+        'dev': [
+            'pytest',
+            'pytest-pycodestyle',
+            'pytest-cov'
+        ]
+    },
     data_files=[('common_analysis_ip_and_uri_finder/yara_rules', [
         'common_analysis_ip_and_uri_finder/yara_rules/ip_rules.yara',
         'common_analysis_ip_and_uri_finder/yara_rules/uri_rules.yara',
