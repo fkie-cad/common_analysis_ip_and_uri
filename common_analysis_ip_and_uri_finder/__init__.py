@@ -1,6 +1,5 @@
-from .ip_and_uri_finder_analysis import CommonAnalysisIPAndURIFinder, IPFinder, URIFinder, system_version
-
-__version__ = system_version
+from .ip_and_uri_finder_analysis import CommonAnalysisIPAndURIFinder, IPFinder, URIFinder
+from .version import __version__
 
 __all__ = [
     'IPFinder',

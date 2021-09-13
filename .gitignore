@@ -1,8 +1,11 @@
-__pycache__
+*.egg-info/*
+*.pyc
+.cache
+.coverage
+.idea
 .project
 .pydevproject
-*.pyc
+.pytest_cache
+__pycache__
 build/*
 dist/*
-*.egg-info/*
-.cache
