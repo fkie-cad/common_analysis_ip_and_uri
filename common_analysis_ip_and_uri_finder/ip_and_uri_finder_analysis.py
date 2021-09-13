@@ -7,7 +7,7 @@ import yara
 from common_analysis_base import AnalysisPluginFile
 from common_helper_files import get_dir_of_file
 
-from .version import __version__
+from .version import __version__ as system_version
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
@@ -117,7 +117,7 @@ class URIFinder(FinderBase):
 class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
 
     def __init__(self, yara_uri_rules=None, yara_ip_rules=None):
-        super(CommonAnalysisIPAndURIFinder, self).__init__(__version__)
+        super(CommonAnalysisIPAndURIFinder, self).__init__(system_version)
         self._set_rule_file_pathes(yara_uri_rules, yara_ip_rules)
         self._check_for_errors()
 
