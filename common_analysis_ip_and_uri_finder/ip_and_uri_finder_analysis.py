@@ -1,7 +1,6 @@
 import logging
 import os
 import socket
-from sys import exc_info
 
 import yara
 from common_analysis_base import AnalysisPluginFile
@@ -21,8 +20,8 @@ class FinderBase:
 
     @staticmethod
     def get_file_content(file_path):
-        with open(file_path, "rb") as fp:
-            return fp.read()
+        with open(file_path, 'rb') as fd:
+            return fd.read()
 
 
 class IPFinder(FinderBase):
@@ -32,14 +31,11 @@ class IPFinder(FinderBase):
     def _find_addresses_of_specific_format(self, string, address_format, validate=True):
         try:
             yara_matches = self.ip_rules.match(data=string)
-        except Exception as e:
-            logging.error("Could not match yara rules: {} {}".format(exc_info()[0].__name__, e))
+        except Exception:
+            logging.error('Could not match yara rules', exc_info=True)
             return []
-        else:
-            result = self.get_strings_from_matches(yara_matches)
-            if validate:
-                result = self._validate_ips(result, address_format=address_format)
-            return result
+        result = self.get_strings_from_matches(yara_matches)
+        return self._validate_ips(result, address_format=address_format) if validate else result
 
     def find_ipv4_addresses(self, string, validate=True):
         return self._find_addresses_of_specific_format(string, socket.AF_INET, validate)
@@ -75,11 +71,7 @@ class IPFinder(FinderBase):
 
     @staticmethod
     def _validate_ips(ip_list, address_format):
-        result = []
-        for ip in ip_list[:]:
-            if IPFinder._validate_ip(ip, address_format):
-                result.append(ip)
-        return result
+        return [ip for ip in ip_list[:] if IPFinder._validate_ip(ip, address_format)]
 
 
 class URIFinder(FinderBase):
@@ -89,12 +81,10 @@ class URIFinder(FinderBase):
     def find_uris(self, uri_string):
         try:
             yara_matches = self.rules.match(data=uri_string)
-        except Exception as e:
-            logging.error("Could not match yara rules: {} {}".format(exc_info()[0].__name__, e))
+        except Exception:
+            logging.error('Could not match yara rules', exc_info=True)
             return []
-        else:
-            result = self.get_strings_from_matches(yara_matches)
-            return result
+        return self.get_strings_from_matches(yara_matches)
 
     def find_urls_in_file(self, file_path):
         file_content = self.get_file_content(file_path)
@@ -102,10 +92,10 @@ class URIFinder(FinderBase):
 
     @staticmethod
     def eliminate_overlaps(yara_match_strings):
-        """ yara matches contain overlaps
-            e.g. if the string contains 123.123.123.123
-            the results would be 123.123.123.123, 23.123.123.123 and 3.123.123.123
-        """
+        '''
+        yara matches contain overlaps e.g. if the string contains 123.123.123.123
+        the results would be 123.123.123.123, 23.123.123.123 and 3.123.123.123
+        '''
         result = yara_match_strings[:]
         for i in range(1, len(yara_match_strings)):
             # if the matches are in direct succession
@@ -134,13 +124,13 @@ class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
 
     def _check_for_errors(self):
         if os.path.exists(self.yara_ip_rules):
-            logging.info('ip signature path: {}'.format(self.yara_ip_rules))
+            logging.debug(f'ip signature path: {self.yara_ip_rules}')
         else:
-            logging.error('ip signatures not found: {}'.format(self.yara_ip_rules))
+            logging.error(f'ip signatures not found: {self.yara_ip_rules}')
         if os.path.exists(self.yara_uri_rules):
-            logging.info('ip signature path: {}'.format(self.yara_uri_rules))
+            logging.debug(f'ip signature path: {self.yara_uri_rules}')
         else:
-            logging.error('ip signatures not found: {}'.format(self.yara_uri_rules))
+            logging.error(f'ip signatures not found: {self.yara_uri_rules}')
 
     def analyze_file(self, file_path, separate_ipv6=False):
         found_uris, found_ips_v4, found_ips_v6 = [], [], []
