@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 import logging
 import os
 import socket
 from sys import exc_info
+from typing import Iterable
 
-import yara
 from common_analysis_base import AnalysisPluginFile
 from common_helper_files import get_dir_of_file
+from packaging.version import parse as parse_version
+import yara
 
 from .version import __version__ as system_version
 
@@ -14,10 +18,25 @@ logger.setLevel(logging.INFO)
 
 
 class FinderBase:
+    def get_strings_from_matches(self, matches):
+        result = []
+        for match in matches:
+            for item in URIFinder.eliminate_overlaps(match.strings):
+                result.extend(self._collect_strings(item))
+        return result
+
     @staticmethod
-    def get_strings_from_matches(matches):
-        # the desired strings are contained in the tuples at the third position in each yara match object
-        return [item[2].decode() for match in matches for item in URIFinder.eliminate_overlaps(match.strings)]
+    def _collect_strings(match: tuple[int, str, bytes] | yara.StringMatch) -> Iterable[str]:
+        if parse_version(yara.YARA_VERSION) >= parse_version('4.3.0'):
+            # https://yara.readthedocs.io/en/latest/yarapython.html#yara.StringMatch
+            last_offset = -2
+            for instance in match.instances:
+                data = instance.matched_data.decode()
+                if instance.offset != last_offset + 1:  # skip non-greedy overlaps
+                    yield data
+                last_offset = instance.offset
+        else:  # yara version < 4.3.0 -> strings are contained in the tuples at the third position
+            yield match[2].decode()
 
     @staticmethod
     def get_file_content(file_path):
