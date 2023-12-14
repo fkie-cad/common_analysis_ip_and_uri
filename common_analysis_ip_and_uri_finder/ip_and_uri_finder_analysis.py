@@ -1,23 +1,28 @@
+from __future__ import annotations
+
 import logging
 import os
 import socket
 from sys import exc_info
+from typing import Iterable
 
-import yara
 from common_analysis_base import AnalysisPluginFile
 from common_helper_files import get_dir_of_file
+from packaging.version import parse as parse_version
+import yara
 
 from .version import __version__ as system_version
 
 logger = logging.getLogger('CommonAnalysisIPAndURIFinder')
 logger.setLevel(logging.INFO)
 
+YARA_IS_NEW = parse_version(yara.YARA_VERSION) >= parse_version('4.3.0')
+
 
 class FinderBase:
     @staticmethod
     def get_strings_from_matches(matches):
-        # the desired strings are contained in the tuples at the third position in each yara match object
-        return [item[2].decode() for match in matches for item in URIFinder.eliminate_overlaps(match.strings)]
+        return [string for match in matches for string in URIFinder.get_strings_without_overlaps(match.strings)]
 
     @staticmethod
     def get_file_content(file_path):
@@ -101,27 +106,39 @@ class URIFinder(FinderBase):
         return self.find_uris(file_content)
 
     @staticmethod
-    def eliminate_overlaps(yara_match_strings):
-        """ yara matches contain overlaps
-            e.g. if the string contains 123.123.123.123
-            the results would be 123.123.123.123, 23.123.123.123 and 3.123.123.123
+    def get_strings_without_overlaps(matches: list[tuple[int, str, bytes]] | list[yara.StringMatch]) -> Iterable[str]:
         """
-        result = yara_match_strings[:]
-        for i in range(1, len(yara_match_strings)):
-            # if the matches are in direct succession
-            if yara_match_strings[i][0] - yara_match_strings[i - 1][0] == 1:
-                result.remove(yara_match_strings[i])
-        return result
+        yara matches contain overlaps e.g. if the string contains 123.123.123.123, the results would be
+        123.123.123.123, 23.123.123.123 and 3.123.123.123
+        """
+        iter_function = _iter_match_instance if YARA_IS_NEW else _iter_tuples
+        last_offset = -2
+        for offset, string in iter_function(matches):
+            if offset != last_offset + 1:  # skip non-greedy overlaps
+                yield string
+            last_offset = offset
+
+
+def _iter_match_instance(matches: list[yara.StringMatch]) -> Iterable[tuple[int, str]]:
+    # newer YARA versions use StringMatchInstance objects
+    # see https://yara.readthedocs.io/en/latest/yarapython.html#yara.StringMatchInstance
+    for match in matches:
+        for instance in match.instances:
+            yield instance.offset, instance.matched_data.decode()
+
+
+def _iter_tuples(matches: list[tuple[int, str, bytes]]) -> Iterable[tuple[int, str]]:
+    for offset, _, string in matches:
+        yield offset, string.decode()
 
 
 class CommonAnalysisIPAndURIFinder(AnalysisPluginFile):
-
     def __init__(self, yara_uri_rules=None, yara_ip_rules=None):
         super(CommonAnalysisIPAndURIFinder, self).__init__(system_version)
-        self._set_rule_file_pathes(yara_uri_rules, yara_ip_rules)
+        self._set_rule_file_paths(yara_uri_rules, yara_ip_rules)
         self._check_for_errors()
 
-    def _set_rule_file_pathes(self, yara_uri_rules, yara_ip_rules):
+    def _set_rule_file_paths(self, yara_uri_rules, yara_ip_rules):
         internal_signature_dir = os.path.join(get_dir_of_file(__file__), 'yara_rules')
         if yara_ip_rules is None:
             self.yara_ip_rules = os.path.join(internal_signature_dir, 'ip_rules.yara')

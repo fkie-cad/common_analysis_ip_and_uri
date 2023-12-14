@@ -19,7 +19,8 @@ setup(
     install_requires=[
         'common_analysis_base @ git+https://github.com/mass-project/common_analysis_base.git',
         'common_helper_files @ git+https://github.com/fkie-cad/common_helper_files.git',
-        'yara-python >= 3.5'
+        'packaging >= 23.0',
+        'yara-python >= 3.5',
     ],
     extras_require={
         'dev': [
